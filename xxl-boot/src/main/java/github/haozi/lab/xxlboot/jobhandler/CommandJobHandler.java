@@ -4,6 +4,7 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;
 import com.xxl.job.core.log.XxlJobLogger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
@@ -17,6 +18,7 @@ import java.io.InputStreamReader;
  */
 @JobHandler(value="commandJobHandler")
 @Component
+@Slf4j
 public class CommandJobHandler extends IJobHandler {
 
     @Override
@@ -35,6 +37,7 @@ public class CommandJobHandler extends IJobHandler {
             // command log
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                log.info(line);
                 XxlJobLogger.log(line);
             }
 
@@ -42,6 +45,7 @@ public class CommandJobHandler extends IJobHandler {
             process.waitFor();
             exitValue = process.exitValue();
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             XxlJobLogger.log(e);
         } finally {
             if (bufferedReader != null) {

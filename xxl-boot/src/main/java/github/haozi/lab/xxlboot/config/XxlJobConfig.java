@@ -1,6 +1,12 @@
 package github.haozi.lab.xxlboot.config;
 
+import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
+import com.xxl.rpc.remoting.invoker.call.CallType;
+import com.xxl.rpc.remoting.invoker.reference.XxlRpcReferenceBean;
+import com.xxl.rpc.remoting.invoker.route.LoadBalance;
+import com.xxl.rpc.remoting.net.NetEnum;
+import com.xxl.rpc.serialize.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,9 +55,28 @@ public class XxlJobConfig {
         xxlJobSpringExecutor.setAccessToken(accessToken);
         xxlJobSpringExecutor.setLogPath(logPath);
         xxlJobSpringExecutor.setLogRetentionDays(logRetentionDays);
-
         return xxlJobSpringExecutor;
     }
+
+    @Bean
+    public ExecutorBiz executorBiz() {
+        ExecutorBiz executorBiz = (ExecutorBiz) new XxlRpcReferenceBean(
+                NetEnum.NETTY_HTTP,
+                Serializer.SerializeEnum.HESSIAN.getSerializer(),
+                CallType.SYNC,
+                LoadBalance.ROUND,
+                ExecutorBiz.class,
+                null,
+                10000,
+                ip+":"+port,
+                null,
+                null,
+                null).getObject();
+
+        return executorBiz;
+    }
+
+
 
     /**
      * 针对多网卡、容器内部署等情况，可借助 "spring-cloud-commons" 提供的 "InetUtils" 组件灵活定制注册IP；
