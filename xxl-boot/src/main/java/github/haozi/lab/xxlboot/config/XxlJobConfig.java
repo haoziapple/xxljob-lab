@@ -1,5 +1,6 @@
 package github.haozi.lab.xxlboot.config;
 
+import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import com.xxl.rpc.remoting.invoker.call.CallType;
@@ -58,6 +59,15 @@ public class XxlJobConfig {
         return xxlJobSpringExecutor;
     }
 
+    /**
+     * 执行器API服务, 参考代码：com.xxl.job.executor.ExecutorBizTest
+     * 1、心跳检测(beat)：调度中心使用
+     * 2、忙碌检测(idleBeat)：调度中心使用
+     * 3、触发任务执行(run)：调度中心使用；本地进行任务开发时，可使用该API服务模拟触发任务；
+     * 4、获取Rolling Log(log)：调度中心使用
+     * 5、终止任务(kill)：调度中心使用
+     * @return
+     */
     @Bean
     public ExecutorBiz executorBiz() {
         ExecutorBiz executorBiz = (ExecutorBiz) new XxlRpcReferenceBean(
@@ -74,6 +84,30 @@ public class XxlJobConfig {
                 null).getObject();
 
         return executorBiz;
+    }
+
+    /**
+     * 1、任务结果回调服务；
+     * 2、执行器注册服务；
+     * 3、执行器注册摘除服务；
+     * @return
+     */
+    @Bean
+    public AdminBiz adminBiz() {
+        AdminBiz adminBiz = (AdminBiz) new XxlRpcReferenceBean(
+                NetEnum.NETTY_HTTP,
+                Serializer.SerializeEnum.HESSIAN.getSerializer(),
+                CallType.SYNC,
+                LoadBalance.ROUND,
+                AdminBiz.class,
+                null,
+                3000,
+                adminAddresses,
+                accessToken,
+                null,
+                null).getObject();
+
+        return adminBiz;
     }
 
 
